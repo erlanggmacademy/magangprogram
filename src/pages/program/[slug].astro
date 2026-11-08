@@ -1,0 +1,204 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro';
+import { supabase } from '../../lib/supabase/client';
+
+const { slug } = Astro.params;
+
+// Query program by slug
+const { data: program, error } = await supabase
+  .from('programs')
+  .select('*')
+  .eq('slug', slug)
+  .eq('is_published', true)
+  .single();
+
+if (error || !program) {
+  return Astro.redirect('/404');
+}
+
+// Structured Data Schema Sesuai PRD Bab 10.6
+const programSchema = {
+  "@context": "https://schema.org",
+  "@type": "EducationalOccupationalProgram",
+  "@id": `https://programmagang.id/program/${program.slug}#program`,
+  "name": program.title,
+  "description": program.short_description || program.description,
+  "url": `https://programmagang.id/program/${program.slug}`,
+  "provider": {
+    "@type": "Organization",
+    "name": "Program Magang & Digital Agency",
+    "url": "https://programmagang.id/"
+  },
+  "educationalProgramMode": program.mode === 'online' ? 'Online' : 'Blended',
+  "programType": "Internship",
+  "occupationalCategory": program.target_major || "Teknologi & Digital",
+  "inLanguage": "id-ID"
+};
+
+const pageTitle = program.meta_title || `${program.title} - Program Magang`;
+const pageDesc = program.meta_description || program.short_description || `Informasi lengkap, kurikulum, materi praktik, dan pendaftaran ${program.title}.`;
+---
+
+<MainLayout
+  title={pageTitle}
+  description={pageDesc}
+  schema={programSchema}
+>
+  <!-- BREADCRUMB & HEADER -->
+  <section class="py-5 bg-white border-bottom">
+    <div class="container py-2">
+      <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb small">
+          <li class="breadcrumb-item"><a href="/" class="text-maroon text-decoration-none">Beranda</a></li>
+          <li class="breadcrumb-item"><a href="/program" class="text-maroon text-decoration-none">Program</a></li>
+          <li class="breadcrumb-item active text-muted" aria-current="page">{program.title}</li>
+        </ol>
+      </nav>
+
+      <div class="row align-items-center g-4">
+        <div class="col-lg-8">
+          <div class="d-flex flex-wrap gap-2 mb-3">
+            <span class="badge bg-maroon text-white text-uppercase px-3 py-2 small">
+              {program.category === 'smk' ? 'Program SMK / PKL' : 'Program Mahasiswa'}
+            </span>
+            <span class="badge badge-outline text-capitalize px-3 py-2 small">
+              <i class="bi bi-geo-alt me-1"></i>{program.mode} ({program.location || 'Hybrid / Remote'})
+            </span>
+            <span class="badge badge-outline px-3 py-2 small">
+              <i class="bi bi-clock me-1"></i>{program.duration || '3 - 6 Bulan'}
+            </span>
+          </div>
+
+          <h1 class="display-6 fw-bold font-heading text-maroon mb-3">{program.title}</h1>
+          <p class="lead text-muted mb-4">{program.short_description}</p>
+
+          <div class="d-flex flex-wrap gap-3">
+            <a href="/pendaftaran" class="btn btn-maroon btn-lg px-4 d-inline-flex align-items-center gap-2 shadow-sm">
+              <span>Daftar Program Ini</span>
+              <i class="bi bi-arrow-right"></i>
+            </a>
+            <a
+              href={`https://wa.me/62895639068080?text=Halo%20Admin%2C%20saya%20ingin%20tanya%20detail%20mengenai%20${encodeURIComponent(program.title)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn btn-outline-maroon btn-lg px-4 d-inline-flex align-items-center gap-2"
+            >
+              <i class="bi bi-whatsapp text-success"></i>
+              <span>Konsultasi via WhatsApp</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="col-lg-4">
+          <div class="card-elegant p-4 bg-light border">
+            <h5 class="fw-bold text-maroon mb-3 font-heading">Ringkasan Magang</h5>
+            <ul class="list-unstyled small d-flex flex-column gap-3 mb-0">
+              <li class="d-flex justify-content-between border-bottom pb-2">
+                <span class="text-muted">Target Jurusan:</span>
+                <strong class="text-maroon">{program.target_major || '-'}</strong>
+              </li>
+              <li class="d-flex justify-content-between border-bottom pb-2">
+                <span class="text-muted">Durasi:</span>
+                <strong>{program.duration || '3 - 6 Bulan'}</strong>
+              </li>
+              <li class="d-flex justify-content-between border-bottom pb-2">
+                <span class="text-muted">Metode:</span>
+                <strong class="text-capitalize">{program.mode}</strong>
+              </li>
+              <li class="d-flex justify-content-between border-bottom pb-2">
+                <span class="text-muted">Sertifikat:</span>
+                <strong class="text-success"><i class="bi bi-check-circle-fill"></i> Disediakan</strong>
+              </li>
+              <li class="d-flex justify-content-between">
+                <span class="text-muted">Dukungan LoA Kampus/SMK:</span>
+                <strong class="text-success"><i class="bi bi-check-circle-fill"></i> Ya</strong>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DETAIL KONTEN / MATERI -->
+  <section class="section-padding" style="background-color: #F8F6F5;">
+    <div class="container">
+      <div class="row g-5">
+        <div class="col-lg-8">
+          <!-- Overview Card -->
+          <div class="card-elegant p-4 p-md-5 mb-4 bg-white">
+            <h3 class="h4 fw-bold text-maroon mb-3 font-heading">Tentang Program Ini</h3>
+            <p class="text-muted">
+              {program.description || 'Program ini dirancang khusus untuk membekali peserta dengan keterampilan teknis dan soft-skills kerja profesional yang dibutuhkan industri. Peserta tidak hanya belajar konsep teoritis, melainkan langsung berkolaborasi dalam proyek riil, memecahkan permasalahan teknis, serta menyusun portofolio kerja yang teruji.'}
+            </p>
+
+            <h4 class="h5 fw-bold text-maroon mt-4 mb-3 font-heading">Fokus Aktivitas & Pembelajaran</h4>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="p-3 bg-light rounded-3 border">
+                  <div class="fw-bold text-maroon mb-1"><i class="bi bi-laptop me-2"></i>Praktik Berbasis Proyek</div>
+                  <small class="text-muted">Mengerjakan studi kasus nyata di bawah bimbingan langsung tim teknis.</small>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="p-3 bg-light rounded-3 border">
+                  <div class="fw-bold text-maroon mb-1"><i class="bi bi-chat-dots me-2"></i>Mentoring & Review Rutin</div>
+                  <small class="text-muted">Sesi diskusi, evaluasi kode/karya, dan umpan balik berkala.</small>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="p-3 bg-light rounded-3 border">
+                  <div class="fw-bold text-maroon mb-1"><i class="bi bi-kanban me-2"></i>Workflow Industri</div>
+                  <small class="text-muted">Mengenal manajemen tugas, dokumentasi kerja, dan kolaborasi tim.</small>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="p-3 bg-light rounded-3 border">
+                  <div class="fw-bold text-maroon mb-1"><i class="bi bi-folder-check me-2"></i>Penyusunan Portofolio</div>
+                  <small class="text-muted">Hasil akhir berupa portofolio yang dapat dipublikasikan di CV dan resume.</small>
+                </div>
+              </div>
+            </div>
+
+            <h4 class="h5 fw-bold text-maroon mt-5 mb-3 font-heading">Persyaratan Peserta</h4>
+            <ul class="text-muted small d-flex flex-column gap-2 mb-0">
+              <li><i class="bi bi-check2 text-maroon me-2"></i>Siswa SMK aktif atau Mahasiswa aktif dari jurusan terkait.</li>
+              <li><i class="bi bi-check2 text-maroon me-2"></i>Memiliki komitmen untuk mengikuti seluruh durasi dan tata tertib magang.</li>
+              <li><i class="bi bi-check2 text-maroon me-2"></i>Memiliki perangkat laptop/komputer pribadi dan koneksi internet yang memadai.</li>
+              <li><i class="bi bi-check2 text-maroon me-2"></i>Mempunyai kemauan belajar mandiri dan kemampuan berkomunikasi yang baik.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Sidebar CTA -->
+        <div class="col-lg-4">
+          <div class="card-elegant p-4 bg-white sticky-top" style="top: 100px;">
+            <h5 class="fw-bold text-maroon mb-2 font-heading">Siap Memulai Magang?</h5>
+            <p class="text-muted small mb-4">
+              Kuota peserta pada setiap periode terbatas demi menjaga efektivitas bimbingan mentor 1-on-1.
+            </p>
+
+            <a href="/pendaftaran" class="btn btn-maroon w-100 py-3 fw-bold mb-2 shadow-sm">
+              Daftar Program Ini &rarr;
+            </a>
+
+            <a
+              href={`https://wa.me/62895639068080?text=Halo%20Admin%2C%20apakah%20kuota%20untuk%20${encodeURIComponent(program.title)}%20masih%20tersedia%3F`}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn btn-outline-maroon w-100 py-2 d-flex align-items-center justify-content-center gap-2"
+            >
+              <i class="bi bi-whatsapp text-success"></i> Tanya Kuota Admin
+            </a>
+
+            <div class="pt-4 mt-4 border-top">
+              <span class="small text-muted d-block mb-1">Ada pertanyaan administratif kampus?</span>
+              <small class="text-muted">Hubungi kami melalui WhatsApp di <strong>+62 895-6390-68080</strong></small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</MainLayout>
+

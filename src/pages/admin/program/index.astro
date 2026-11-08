@@ -1,0 +1,77 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { supabaseAdmin } from '../../../lib/supabase/admin';
+
+const { data: programsData } = await supabaseAdmin
+  .from('programs')
+  .select('*')
+  .order('sort_order', { ascending: true });
+
+const programs = programsData || [];
+---
+
+<AdminLayout title="Manajemen Program Magang" activeMenu="program">
+  <div class="card-elegant bg-white border-0 shadow-sm">
+    <div class="card-header bg-white py-3 px-4 d-flex justify-content-between align-items-center border-bottom">
+      <div>
+        <h5 class="fw-bold text-maroon mb-0 font-heading">Daftar Program Magang</h5>
+        <small class="text-muted">Total <strong>{programs.length}</strong> program aktif di database</small>
+      </div>
+      <a href="/program" target="_blank" class="btn btn-sm btn-outline-maroon">
+        <i class="bi bi-box-arrow-up-right me-1"></i>Lihat di Website Publik
+      </a>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light small text-uppercase text-muted">
+          <tr>
+            <th class="ps-4">Urutan</th>
+            <th>Judul Program & Slug</th>
+            <th>Kategori</th>
+            <th>Target Jurusan</th>
+            <th>Durasi & Mode</th>
+            <th>Status Publikasi</th>
+            <th class="text-end pe-4">Aksi</th>
+          </tr>
+        </thead>
+        <tbody class="small">
+          {programs.map((prog, idx) => (
+            <tr>
+              <td class="ps-4 fw-bold text-muted">{idx + 1}</td>
+              <td>
+                <div class="fw-bold text-maroon font-heading">{prog.title}</div>
+                <small class="text-muted"><code>/program/{prog.slug}</code></small>
+              </td>
+              <td>
+                <span class={`badge ${prog.category === 'smk' ? 'bg-maroon' : 'bg-primary'} text-uppercase`}>
+                  {prog.category}
+                </span>
+              </td>
+              <td>
+                <span class="badge badge-outline">{prog.target_major || '-'}</span>
+              </td>
+              <td>
+                <div>{prog.duration}</div>
+                <small class="text-muted text-capitalize">{prog.mode}</small>
+              </td>
+              <td>
+                {prog.is_published ? (
+                  <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Published</span>
+                ) : (
+                  <span class="badge bg-secondary">Draft</span>
+                )}
+              </td>
+              <td class="text-end pe-4">
+                <a href={`/program/${prog.slug}`} target="_blank" class="btn btn-sm btn-outline-secondary py-1 px-2" title="Lihat Tampilan">
+                  <i class="bi bi-eye"></i>
+                </a>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</AdminLayout>
+

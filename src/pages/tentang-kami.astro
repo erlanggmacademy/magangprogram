@@ -1,0 +1,121 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+
+const aboutSchema = {
+  "@context": "https://schema.org",
+  "@type": "AboutPage",
+  "@id": "https://programmagang.id/tentang-kami#webpage",
+  "url": "https://programmagang.id/tentang-kami",
+  "name": "Tentang Kami - Program Magang & Digital Agency",
+  "description": "Profil organisasi, visi, misi, dan metode inkubasi talenta digital SMK dan mahasiswa serta layanan digital agency profesional.",
+  "inLanguage": "id-ID"
+};
+---
+
+<MainLayout
+  title="Tentang Kami - Profil Organisasi & Tim"
+  description="Mengenal lebih dekat ekosistem program magang SMK, mahasiswa, dan layanan digital agency. Membangun talenta digital masa depan yang siap kerja."
+  schema={aboutSchema}
+>
+  <div class="py-5 bg-white border-bottom">
+    <div class="container text-center py-3">
+      <span class="badge-maroon px-3 py-1 mb-2 d-inline-block">Profil Organisasi</span>
+      <h1 class="display-5 fw-bold font-heading text-maroon mb-3">Tentang Kami</h1>
+      <p class="lead text-muted mx-auto" style="max-width: 720px;">
+        Menjembatani kesenjangan antara dunia pendidikan dengan kebutuhan nyata industri melalui program magang berbasis proyek riil dan layanan agensi digital terpercaya.
+      </p>
+    </div>
+  </div>
+
+  <!-- VISI & MISI -->
+  <section class="section-padding" style="background-color: #F8F6F5;">
+    <div class="container">
+      <div class="row g-4 align-items-center mb-5">
+        <div class="col-lg-6">
+          <div class="card-elegant p-4 p-md-5 h-100 bg-white">
+            <div class="d-inline-flex align-items-center justify-content-center bg-accent-soft text-maroon rounded-3 p-3 mb-3" style="width: 52px; height: 52px;">
+              <i class="bi bi-eye-fill fs-4"></i>
+            </div>
+            <h3 class="h4 fw-bold text-maroon mb-3 font-heading">Visi Kami</h3>
+            <p class="text-muted mb-0">
+              Menjadi wadah inkubasi talenta digital unggulan di Indonesia yang melahirkan generasi muda berdaya saing tinggi di bidang teknologi dan pemasaran digital, sekaligus menjadi mitra transformasi digital terpercaya bagi pelaku usaha.
+            </p>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card-elegant p-4 p-md-5 h-100 bg-white">
+            <div class="d-inline-flex align-items-center justify-content-center bg-accent-soft text-maroon rounded-3 p-3 mb-3" style="width: 52px; height: 52px;">
+              <i class="bi bi-bullseye fs-4"></i>
+            </div>
+            <h3 class="h4 fw-bold text-maroon mb-3 font-heading">Misi Kami</h3>
+            <ul class="text-muted small d-flex flex-column gap-2 mb-0 ps-3">
+              <li>Menyelenggarakan program magang praktis yang relevan dengan standar industri modern.</li>
+              <li>Membimbing siswa dan mahasiswa menyusun portofolio kerja nyata yang kredibel.</li>
+              <li>Memberikan solusi digital agency yang inovatif, efektif, dan terukur bagi klien bisnis.</li>
+              <li>Menumbuhkan budaya profesionalisme, kerja tim, dan continuous learning.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- METODE PEMBELAJARAN -->
+      <div class="card-elegant p-4 p-md-5 bg-white">
+        <div class="text-center mb-4">
+          <h3 class="h4 fw-bold text-maroon font-heading">Metode Pembelajaran Magang</h3>
+          <p class="text-muted small">Pendekatan kami mengutamakan pengalaman praktik langsung daripada hafalan teori.</p>
+        </div>
+
+        <div class="row g-4 text-center">
+          <div class="col-md-3">
+            <div class="p-3 bg-light rounded-3">
+              <i class="bi bi-person-lines-fill fs-2 text-maroon mb-2 d-block"></i>
+              <h6 class="fw-bold text-maroon mb-1">Onboarding Terstruktur</h6>
+              <p class="text-muted small mb-0">Pengenalan tools industri, standar alur kerja, dan budaya kerja tim.</p>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="p-3 bg-light rounded-3">
+              <i class="bi bi-code-slash fs-2 text-maroon mb-2 d-block"></i>
+              <h6 class="fw-bold text-maroon mb-1">Project-Based Learning</h6>
+              <p class="text-muted small mb-0">Mengerjakan studi kasus nyata mulai dari perencanaan hingga deployment.</p>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="p-3 bg-light rounded-3">
+              <i class="bi bi-chat-heart fs-2 text-maroon mb-2 d-block"></i>
+              <h6 class="fw-bold text-maroon mb-1">Mentoring Berkala</h6>
+              <p class="text-muted small mb-0">Sesi review mingguan untuk mengevaluasi progress dan kendala teknis.</p>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="p-3 bg-light rounded-3">
+              <i class="bi bi-award fs-2 text-maroon mb-2 d-block"></i>
+              <h6 class="fw-bold text-maroon mb-1">Evaluasi & Sertifikasi</h6>
+              <p class="text-muted small mb-0">Penilaian menyeluruh untuk keperluan akademik sekolah maupun kampus.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="py-5 bg-maroon text-white text-center">
+    <div class="container">
+      <h3 class="fw-bold mb-3 font-heading text-white">Ingin Menjalin Kerjasama Institusi atau Magang?</h3>
+      <p class="lead opacity-90 mx-auto mb-4" style="max-width: 650px;">
+        Kami terbuka untuk kolaborasi kemitraan bersama sekolah SMK, universitas, maupun program magang mandiri.
+      </p>
+      <a
+        href="https://wa.me/62895639068080?text=Halo%20Admin%2C%20saya%20ingin%20berdiskusi%20tentang%20kerjasama%20institusi%2Fmagang"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="btn btn-warning text-dark fw-bold px-4 py-2"
+      >
+        <i class="bi bi-whatsapp"></i> Hubungi Kami via WhatsApp
+      </a>
+    </div>
+  </section>
+</MainLayout>
+

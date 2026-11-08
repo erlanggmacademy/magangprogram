@@ -1,0 +1,72 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { supabaseAdmin } from '../../../lib/supabase/admin';
+
+const { data: servicesData } = await supabaseAdmin
+  .from('services')
+  .select('*')
+  .order('sort_order', { ascending: true });
+
+const services = servicesData || [];
+---
+
+<AdminLayout title="Manajemen Layanan Jasa" activeMenu="jasa">
+  <div class="card-elegant bg-white border-0 shadow-sm">
+    <div class="card-header bg-white py-3 px-4 d-flex justify-content-between align-items-center border-bottom">
+      <div>
+        <h5 class="fw-bold text-maroon mb-0 font-heading">Daftar Layanan Digital Agency</h5>
+        <small class="text-muted">Total <strong>{services.length}</strong> layanan aktif</small>
+      </div>
+      <a href="/jasa" target="_blank" class="btn btn-sm btn-outline-maroon">
+        <i class="bi bi-box-arrow-up-right me-1"></i>Lihat di Website Publik
+      </a>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light small text-uppercase text-muted">
+          <tr>
+            <th class="ps-4">Urutan</th>
+            <th>Layanan</th>
+            <th>Deskripsi Singkat</th>
+            <th>Icon</th>
+            <th>Status</th>
+            <th class="text-end pe-4">Aksi</th>
+          </tr>
+        </thead>
+        <tbody class="small">
+          {services.map((svc, idx) => (
+            <tr>
+              <td class="ps-4 fw-bold text-muted">{idx + 1}</td>
+              <td>
+                <div class="fw-bold text-maroon font-heading">{svc.title}</div>
+                <small class="text-muted"><code>/jasa/{svc.slug}</code></small>
+              </td>
+              <td class="text-muted" style="max-width: 320px;">
+                {svc.short_description}
+              </td>
+              <td>
+                <span class="badge bg-light text-maroon border">
+                  <i class={`bi ${svc.icon || 'bi-briefcase'} me-1`}></i>{svc.icon}
+                </span>
+              </td>
+              <td>
+                {svc.is_published ? (
+                  <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Published</span>
+                ) : (
+                  <span class="badge bg-secondary">Draft</span>
+                )}
+              </td>
+              <td class="text-end pe-4">
+                <a href={`/jasa/${svc.slug}`} target="_blank" class="btn btn-sm btn-outline-secondary py-1 px-2" title="Lihat Tampilan">
+                  <i class="bi bi-eye"></i>
+                </a>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</AdminLayout>
+

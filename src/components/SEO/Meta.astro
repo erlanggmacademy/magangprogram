@@ -1,0 +1,54 @@
+---
+interface Props {
+  title?: string;
+  description?: string;
+  canonicalUrl?: string;
+  ogImage?: string;
+  ogType?: 'website' | 'article';
+  noindex?: boolean;
+}
+
+const defaultTitle = "Program Magang SMK & Mahasiswa dan Jasa Digital Agency";
+const defaultDescription = "Platform resmi program magang SMK & mahasiswa bidang IT, RPL, TKJ, Multimedia, DKV, Bisnis Digital serta layanan digital agency profesional.";
+const defaultOgImage = "/images/og-default.jpg";
+
+const {
+  title = defaultTitle,
+  description = defaultDescription,
+  canonicalUrl = Astro.url.href,
+  ogImage = defaultOgImage,
+  ogType = 'website',
+  noindex = false,
+} = Astro.props;
+
+const siteTitle = title === defaultTitle ? title : `${title} | Program Magang & Digital Agency`;
+const resolvedOgImage = new URL(ogImage, Astro.site || Astro.url.origin).href;
+---
+
+<!-- Primary Meta Tags -->
+<title>{siteTitle}</title>
+<meta name="title" content={siteTitle} />
+<meta name="description" content={description} />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="utf-8" />
+<link rel="canonical" href={canonicalUrl} />
+<meta name="robots" content={noindex ? "noindex, nofollow" : "index, follow"} />
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content={ogType} />
+<meta property="og:url" content={canonicalUrl} />
+<meta property="og:title" content={siteTitle} />
+<meta property="og:description" content={description} />
+<meta property="og:image" content={resolvedOgImage} />
+<meta property="og:locale" content="id_ID" />
+
+<!-- Twitter -->
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:url" content={canonicalUrl} />
+<meta property="twitter:title" content={siteTitle} />
+<meta property="twitter:description" content={description} />
+<meta property="twitter:image" content={resolvedOgImage} />
+
+<!-- Favicon -->
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+

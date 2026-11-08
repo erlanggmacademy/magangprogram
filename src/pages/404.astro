@@ -1,0 +1,28 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+---
+
+<MainLayout
+  title="404 - Halaman Tidak Ditemukan"
+  description="Halaman yang Anda tuju tidak ditemukan atau telah dipindahkan."
+  noindex={true}
+>
+  <div class="py-5 my-auto text-center">
+    <div class="container py-5" style="max-width: 600px;">
+      <h1 class="display-1 fw-bold text-maroon font-heading mb-2">404</h1>
+      <h2 class="h3 fw-bold text-dark mb-3">Halaman Tidak Ditemukan</h2>
+      <p class="text-muted mb-4">
+        Mohon maaf, halaman yang Anda cari tidak tersedia atau alamat URL yang Anda masukkan keliru.
+      </p>
+      <div class="d-flex justify-content-center gap-3">
+        <a href="/" class="btn btn-maroon px-4 py-2">
+          Kembali ke Beranda
+        </a>
+        <a href="/program" class="btn btn-outline-maroon px-4 py-2">
+          Lihat Program Magang
+        </a>
+      </div>
+    </div>
+  </div>
+</MainLayout>
+

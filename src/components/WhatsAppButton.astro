@@ -1,0 +1,28 @@
+---
+interface Props {
+  phone?: string;
+  customMessage?: string;
+}
+
+const {
+  phone = "62895639068080",
+  customMessage = "Halo, saya ingin bertanya tentang program magang dan layanan digital agency."
+} = Astro.props;
+
+const waUrl = `https://wa.me/${phone}?text=${encodeURIComponent(customMessage)}`;
+---
+
+<aside aria-label="Kontak WhatsApp">
+  <a
+    href={waUrl}
+    target="_blank"
+    rel="noopener noreferrer"
+    class="wa-float-btn"
+    title="Hubungi Kami via WhatsApp"
+    aria-label="Konsultasi langsung via WhatsApp"
+  >
+    <span class="wa-pulse" aria-hidden="true"></span>
+    <i class="bi bi-whatsapp" aria-hidden="true"></i>
+  </a>
+</aside>
+

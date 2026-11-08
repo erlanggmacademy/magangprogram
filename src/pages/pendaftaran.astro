@@ -1,0 +1,348 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+import { supabase } from '../lib/supabase/client';
+
+// Fetch active programs from Supabase
+const { data: programsData } = await supabase
+  .from('programs')
+  .select('id, title, slug, category, target_major')
+  .eq('is_published', true)
+  .order('sort_order', { ascending: true });
+
+const programs = programsData || [];
+const smkPrograms = programs.filter(p => p.category === 'smk');
+const collegePrograms = programs.filter(p => p.category === 'mahasiswa');
+
+const pendaftaranSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "Formulir Pendaftaran Magang SMK & Mahasiswa",
+  "description": "Daftar program magang & PKL resmi untuk siswa SMK dan mahasiswa. Proses cepat dan terintegrasi langsung dengan database.",
+  "inLanguage": "id-ID"
+};
+---
+
+<MainLayout
+  title="Pendaftaran Program Magang SMK & Mahasiswa"
+  description="Daftar program magang & PKL resmi untuk siswa SMK dan mahasiswa bidang teknologi, multimedia, dan bisnis digital. Dapatkan bimbingan mentor dan proyek nyata."
+  schema={pendaftaranSchema}
+>
+  <div class="py-5" style="background: linear-gradient(180deg, #F8F6F5 0%, #FFFFFF 100%);">
+    <div class="container py-2" style="max-width: 900px;">
+      
+      <!-- Header Title -->
+      <div class="text-center mb-5">
+        <span class="badge-maroon px-3 py-1 mb-2 d-inline-block">Pendaftaran Peserta</span>
+        <h1 class="display-6 fw-bold font-heading text-maroon mb-2">Formulir Pendaftaran Magang</h1>
+        <p class="text-muted mx-auto" style="max-width: 620px;">
+          Lengkapi formulir di bawah ini dengan data yang benar. Setelah berhasil mendaftar, Anda akan mendapatkan kode registrasi untuk melanjutkan konfirmasi ke WhatsApp.
+        </p>
+      </div>
+
+      <!-- Result Success Box (Hidden by default, shown after AJAX success) -->
+      <div id="successBox" class="card-elegant p-4 p-md-5 text-center mb-5 border-success d-none">
+        <div class="d-inline-flex align-items-center justify-content-center bg-success text-white rounded-circle mx-auto mb-3" style="width: 72px; height: 72px;">
+          <i class="bi bi-check-lg fs-1"></i>
+        </div>
+        <h3 class="fw-bold text-success mb-2 font-heading">Pendaftaran Berhasil Dikirim!</h3>
+        <p class="text-muted mb-4">
+          Data Anda telah berhasil dicatat di sistem database kami. Simpan kode pendaftaran Anda di bawah ini:
+        </p>
+
+        <div class="bg-light border rounded-3 p-3 mb-4 mx-auto" style="max-width: 400px;">
+          <small class="text-muted d-block text-uppercase fw-semibold mb-1">Nomor Registrasi Resmi</small>
+          <span id="registeredNumber" class="fs-3 fw-bold text-maroon tracking-wider font-heading">MKI-XXXXXX-XXXX</span>
+        </div>
+
+        <p class="small text-muted mb-4 mx-auto" style="max-width: 500px;">
+          Langkah terakhir: Silakan klik tombol di bawah untuk mengirim konfirmasi langsung ke nomor WhatsApp Admin agar berkas Anda segera diproses oleh tim seleksi.
+        </p>
+
+        <div class="d-flex flex-wrap justify-content-center gap-3">
+          <a id="btnWhatsAppConfirm" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-success btn-lg px-4 d-inline-flex align-items-center gap-2 shadow">
+            <i class="bi bi-whatsapp fs-5"></i>
+            <span>Konfirmasi ke WhatsApp Sekarang</span>
+          </a>
+          <a href="/" class="btn btn-outline-secondary btn-lg px-4">
+            Kembali ke Beranda
+          </a>
+        </div>
+      </div>
+
+      <!-- Main Registration Form Container -->
+      <div id="formContainer" class="card-elegant p-4 p-md-5">
+        <div id="errorAlert" class="alert alert-danger d-none mb-4" role="alert">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>
+          <span id="errorMessage">Terjadi kesalahan pada pengisian formulir.</span>
+        </div>
+
+        <form id="applicationForm" novalidate>
+          
+          <!-- SECTION 1: KATEGORI PESERTA & PROGRAM -->
+          <div class="mb-4 pb-3 border-bottom">
+            <h5 class="fw-bold text-maroon mb-3 font-heading d-flex align-items-center gap-2">
+              <span class="badge bg-maroon rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 28px; height: 28px;">1</span>
+              Kategori & Program Pilihan
+            </h5>
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label fw-semibold small">Jenis Peserta <span class="text-danger">*</span></label>
+                <div class="d-flex gap-3">
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="participant_type" id="typeSmk" value="smk" checked>
+                    <label class="form-check-label" for="typeSmk">Siswa SMK (PKL)</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="participant_type" id="typeMahasiswa" value="mahasiswa">
+                    <label class="form-check-label" for="typeMahasiswa">Mahasiswa</label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <label for="program_id" class="form-label fw-semibold small">Pilihan Program Magang <span class="text-danger">*</span></label>
+                <select class="form-select" id="program_id" name="program_id" required>
+                  <option value="" disabled selected>-- Pilih Program Magang --</option>
+                  <optgroup label="Program SMK / PKL" id="optgroupSmk">
+                    {smkPrograms.map(p => (
+                      <option value={p.id}>{p.title}</option>
+                    ))}
+                  </optgroup>
+                  <optgroup label="Program Mahasiswa" id="optgroupMahasiswa">
+                    {collegePrograms.map(p => (
+                      <option value={p.id}>{p.title}</option>
+                    ))}
+                  </optgroup>
+                </select>
+                <div class="invalid-feedback">Pilih salah satu program magang.</div>
+              </div>
+
+              <div class="col-md-6">
+                <label for="preferred_field" class="form-label fw-semibold small">Bidang Keahlian / Peminatan <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="preferred_field" name="preferred_field" placeholder="Contoh: Web Development / Front-end / SEO / Desain" required>
+                <div class="invalid-feedback">Bidang peminatan wajib diisi.</div>
+              </div>
+
+              <div class="col-md-6">
+                <label for="duration" class="form-label fw-semibold small">Rencana Durasi Magang <span class="text-danger">*</span></label>
+                <select class="form-select" id="duration" name="duration" required>
+                  <option value="" disabled selected>-- Pilih Durasi --</option>
+                  <option value="3 Bulan">3 Bulan</option>
+                  <option value="4 Bulan">4 Bulan</option>
+                  <option value="5 Bulan">5 Bulan</option>
+                  <option value="6 Bulan">6 Bulan</option>
+                </select>
+                <div class="invalid-feedback">Pilih durasi magang.</div>
+              </div>
+
+              <div class="col-md-6">
+                <label for="internship_mode" class="form-label fw-semibold small">Metode Pelaksanaan <span class="text-danger">*</span></label>
+                <select class="form-select" id="internship_mode" name="internship_mode" required>
+                  <option value="hybrid" selected>Hybrid (Kombinasi Offline & Online)</option>
+                  <option value="online">Online / Remote Penuh</option>
+                  <option value="offline">Offline di Kantor</option>
+                </select>
+              </div>
+
+              <div class="col-md-6">
+                <label for="start_date" class="form-label fw-semibold small">Rencana Tanggal Mulai <span class="text-danger">*</span></label>
+                <input type="date" class="form-control" id="start_date" name="start_date" required>
+                <div class="invalid-feedback">Tentukan rencana tanggal mulai magang.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SECTION 2: DATA DIRI & INSTITUSI -->
+          <div class="mb-4 pb-3 border-bottom">
+            <h5 class="fw-bold text-maroon mb-3 font-heading d-flex align-items-center gap-2">
+              <span class="badge bg-maroon rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 28px; height: 28px;">2</span>
+              Data Diri & Asal Institusi
+            </h5>
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label for="full_name" class="form-label fw-semibold small">Nama Lengkap <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="full_name" name="full_name" placeholder="Nama lengkap sesuai kartu identitas" required>
+                <div class="invalid-feedback">Nama lengkap wajib diisi minimal 3 karakter.</div>
+              </div>
+
+              <div class="col-md-6">
+                <label for="email" class="form-label fw-semibold small">Alamat Email Aktif <span class="text-danger">*</span></label>
+                <input type="email" class="form-control" id="email" name="email" placeholder="nama@email.com" required>
+                <div class="invalid-feedback">Masukkan alamat email yang valid.</div>
+              </div>
+
+              <div class="col-md-6">
+                <label for="whatsapp" class="form-label fw-semibold small">Nomor WhatsApp Aktif <span class="text-danger">*</span></label>
+                <input type="tel" class="form-control" id="whatsapp" name="whatsapp" placeholder="Contoh: 081234567890" required>
+                <div class="invalid-feedback">Nomor WhatsApp aktif wajib diisi.</div>
+              </div>
+
+              <div class="col-md-6">
+                <label for="institution" class="form-label fw-semibold small">Asal Sekolah / Universitas <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="institution" name="institution" placeholder="Contoh: SMK Negeri 1 Jakarta / Universitas Brawijaya" required>
+                <div class="invalid-feedback">Nama sekolah atau kampus wajib diisi.</div>
+              </div>
+
+              <div class="col-md-6">
+                <label for="major" class="form-label fw-semibold small">Jurusan / Program Studi <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="major" name="major" placeholder="Contoh: RPL / TKJ / Teknik Informatika / DKV" required>
+                <div class="invalid-feedback">Jurusan wajib diisi.</div>
+              </div>
+
+              <div class="col-md-6">
+                <label for="class_or_semester" class="form-label fw-semibold small">Kelas / Semester Saat Ini <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="class_or_semester" name="class_or_semester" placeholder="Contoh: Kelas 11 / Semester 6" required>
+                <div class="invalid-feedback">Kelas atau semester wajib diisi.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SECTION 3: PORTOFOLIO & CATATAN -->
+          <div class="mb-4 pb-3 border-bottom">
+            <h5 class="fw-bold text-maroon mb-3 font-heading d-flex align-items-center gap-2">
+              <span class="badge bg-maroon rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 28px; height: 28px;">3</span>
+              Portofolio & Informasi Pendukung
+            </h5>
+
+            <div class="row g-3">
+              <div class="col-12">
+                <label for="portfolio_url" class="form-label fw-semibold small">Link Portofolio / CV / GitHub / Google Drive (Opsional)</label>
+                <input type="url" class="form-control" id="portfolio_url" name="portfolio_url" placeholder="https://drive.google.com/... atau https://github.com/...">
+                <div class="form-text">Pastikan link Google Drive atau portofolio dapat diakses secara publik (Share > Anyone with the link).</div>
+              </div>
+
+              <div class="col-12">
+                <label for="notes" class="form-label fw-semibold small">Catatan Tambahan / Keterangan Khusus (Opsional)</label>
+                <textarea class="form-control" id="notes" name="notes" rows="3" placeholder="Tuliskan pengalaman proyek sebelumnya, jadwal khusus, atau harapan dari magang ini..."></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- SECTION 4: PERSETUJUAN PRIVASI -->
+          <div class="mb-4">
+            <div class="form-check p-3 bg-light rounded-3 border">
+              <input class="form-check-input ms-0 me-2" type="checkbox" id="privacy_consent" name="privacy_consent" required>
+              <label class="form-check-label small text-muted" for="privacy_consent">
+                Saya menyatakan bahwa data yang diisi adalah benar, dan saya memberikan persetujuan kepada penyelenggara untuk memproses data pendaftaran ini demi keperluan administrasi dan seleksi magang sesuai dengan ketentuan perlindungan data pribadi (UU PDP). <span class="text-danger">*</span>
+              </label>
+              <div class="invalid-feedback">Anda harus menyetujui pernyataan privasi untuk melanjutkan.</div>
+            </div>
+          </div>
+
+          <!-- SUBMIT BUTTON -->
+          <div class="d-grid gap-2">
+            <button type="submit" id="submitBtn" class="btn btn-maroon btn-lg py-3 fw-bold font-heading d-flex align-items-center justify-content-center gap-2 shadow">
+              <span id="btnText">Kirim Pendaftaran & Dapatkan Kode Registrasi</span>
+              <span id="btnSpinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+              <i id="btnIcon" class="bi bi-arrow-right-circle fs-5"></i>
+            </button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Client-side script handling Form Submission -->
+  <script>
+    const form = document.getElementById('applicationForm') as HTMLFormElement;
+    const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement;
+    const btnText = document.getElementById('btnText') as HTMLElement;
+    const btnSpinner = document.getElementById('btnSpinner') as HTMLElement;
+    const btnIcon = document.getElementById('btnIcon') as HTMLElement;
+    const errorAlert = document.getElementById('errorAlert') as HTMLElement;
+    const errorMessage = document.getElementById('errorMessage') as HTMLElement;
+    const formContainer = document.getElementById('formContainer') as HTMLElement;
+    const successBox = document.getElementById('successBox') as HTMLElement;
+    const registeredNumber = document.getElementById('registeredNumber') as HTMLElement;
+    const btnWhatsAppConfirm = document.getElementById('btnWhatsAppConfirm') as HTMLAnchorElement;
+
+    if (form) {
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        // Check HTML5 validity
+        if (!form.checkValidity()) {
+          e.stopPropagation();
+          form.classList.add('was-validated');
+          return;
+        }
+
+        form.classList.add('was-validated');
+        errorAlert.classList.add('d-none');
+
+        // Extract form values
+        const formData = new FormData(form);
+        const payload = {
+          full_name: formData.get('full_name')?.toString().trim(),
+          email: formData.get('email')?.toString().trim(),
+          whatsapp: formData.get('whatsapp')?.toString().trim(),
+          participant_type: formData.get('participant_type')?.toString(),
+          institution: formData.get('institution')?.toString().trim(),
+          major: formData.get('major')?.toString().trim(),
+          class_or_semester: formData.get('class_or_semester')?.toString().trim(),
+          program_id: formData.get('program_id')?.toString(),
+          preferred_field: formData.get('preferred_field')?.toString().trim(),
+          duration: formData.get('duration')?.toString(),
+          start_date: formData.get('start_date')?.toString(),
+          internship_mode: formData.get('internship_mode')?.toString(),
+          portfolio_url: formData.get('portfolio_url')?.toString().trim() || '',
+          notes: formData.get('notes')?.toString().trim() || '',
+          privacy_consent: formData.get('privacy_consent') === 'on',
+        };
+
+        // Loading state
+        submitBtn.disabled = true;
+        btnText.textContent = 'Menyimpan Pendaftaran...';
+        btnSpinner.classList.remove('d-none');
+        btnIcon.classList.add('d-none');
+
+        try {
+          const res = await fetch('/api/applications', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+          });
+
+          const result = await res.json();
+
+          if (!res.ok || !result.success) {
+            let errorText = result.message || 'Gagal menyimpan pendaftaran.';
+            if (result.errors) {
+              const details = Object.values(result.errors).flat().join(', ');
+              errorText += ` (${details})`;
+            }
+            errorMessage.textContent = errorText;
+            errorAlert.classList.remove('d-none');
+            submitBtn.disabled = false;
+            btnText.textContent = 'Kirim Pendaftaran & Dapatkan Kode Registrasi';
+            btnSpinner.classList.add('d-none');
+            btnIcon.classList.remove('d-none');
+            return;
+          }
+
+          // SUCCESS
+          registeredNumber.textContent = result.application_number;
+          btnWhatsAppConfirm.href = result.whatsapp_url;
+          
+          formContainer.classList.add('d-none');
+          successBox.classList.remove('d-none');
+          window.scrollTo({ top: successBox.offsetTop - 80, behavior: 'smooth' });
+
+        } catch (err: any) {
+          errorMessage.textContent = 'Terjadi kesalahan jaringan. Silakan periksa koneksi internet Anda dan coba lagi.';
+          errorAlert.classList.remove('d-none');
+          submitBtn.disabled = false;
+          btnText.textContent = 'Kirim Pendaftaran & Dapatkan Kode Registrasi';
+          btnSpinner.classList.add('d-none');
+          btnIcon.classList.remove('d-none');
+        }
+      });
+    }
+  </script>
+</MainLayout>
+

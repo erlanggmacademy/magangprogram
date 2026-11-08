@@ -1,0 +1,131 @@
+---
+const currentPath = Astro.url.pathname;
+---
+
+<header class="sticky-top bg-white border-bottom shadow-sm">
+  <nav class="navbar navbar-expand-lg navbar-light py-3">
+    <div class="container">
+      <!-- Brand Logo -->
+      <a class="navbar-brand d-flex align-items-center gap-2 fw-bold text-maroon" href="/">
+        <span class="d-inline-flex align-items-center justify-content-center bg-maroon text-white rounded-3 p-2" style="width: 38px; height: 38px;">
+          <i class="bi bi-mortarboard-fill fs-5"></i>
+        </span>
+        <div class="d-flex flex-column">
+          <span class="lh-1 fs-5 fw-bold font-heading">Magang<span class="text-burgundy">&Agency</span></span>
+          <small class="text-muted fw-normal" style="font-size: 0.72rem;">SMK & Mahasiswa Platform</small>
+        </div>
+      </a>
+
+      <!-- Mobile Toggle Button -->
+      <button
+        class="navbar-toggler border-0 shadow-none p-2"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#mainNavbar"
+        aria-controls="mainNavbar"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <!-- Navigation Menu -->
+      <div class="collapse navbar-collapse" id="mainNavbar">
+        <ul class="navbar-nav mx-auto mb-2 mb-lg-0 fw-medium">
+          <li class="nav-item">
+            <a class={`nav-link px-3 ${currentPath === '/' ? 'active text-maroon fw-bold' : ''}`} href="/">
+              Beranda
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a class={`nav-link px-3 ${currentPath.startsWith('/tentang-kami') ? 'active text-maroon fw-bold' : ''}`} href="/tentang-kami">
+              Tentang Kami
+            </a>
+          </li>
+
+          <!-- Dropdown Program Magang -->
+          <li class="nav-item dropdown">
+            <a
+              class={`nav-link dropdown-toggle px-3 ${currentPath.startsWith('/program') ? 'active text-maroon fw-bold' : ''}`}
+              href="#"
+              role="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              Program Magang
+            </a>
+            <ul class="dropdown-menu border-0 shadow-dropdown rounded-3 py-2 mt-2" style="min-width: 260px;">
+              <li class="dropdown-header text-uppercase fs-7 text-maroon fw-bold pb-1">Program SMK / PKL</li>
+              <li><a class="dropdown-item py-2" href="/program/magang-rpl"><i class="bi bi-code-square me-2 text-maroon"></i>Magang RPL</a></li>
+              <li><a class="dropdown-item py-2" href="/program/magang-tkj"><i class="bi bi-hdd-network me-2 text-maroon"></i>Magang TKJ</a></li>
+              <li><a class="dropdown-item py-2" href="/program/magang-multimedia"><i class="bi bi-film me-2 text-maroon"></i>Magang Multimedia</a></li>
+              <li><a class="dropdown-item py-2" href="/program/magang-dkv"><i class="bi bi-palette me-2 text-maroon"></i>Magang DKV</a></li>
+              <li><hr class="dropdown-divider my-2"></li>
+              <li class="dropdown-header text-uppercase fs-7 text-maroon fw-bold pb-1">Program Mahasiswa</li>
+              <li><a class="dropdown-item py-2" href="/program/magang-informatika"><i class="bi bi-laptop me-2 text-maroon"></i>Informatika / IT</a></li>
+              <li><a class="dropdown-item py-2" href="/program/magang-digital-marketing"><i class="bi bi-graph-up-arrow me-2 text-maroon"></i>Digital Marketing</a></li>
+              <li><a class="dropdown-item py-2" href="/program/magang-bisnis-digital"><i class="bi bi-shop me-2 text-maroon"></i>Bisnis Digital</a></li>
+              <li><a class="dropdown-item py-2" href="/program/magang-pemasaran"><i class="bi bi-megaphone me-2 text-maroon"></i>Manajemen Pemasaran</a></li>
+              <li><hr class="dropdown-divider my-2"></li>
+              <li><a class="dropdown-item py-2 fw-semibold text-maroon" href="/program">Lihat Semua Program &rarr;</a></li>
+            </ul>
+          </li>
+
+          <!-- Dropdown Layanan Jasa -->
+          <li class="nav-item dropdown">
+            <a
+              class={`nav-link dropdown-toggle px-3 ${currentPath.startsWith('/jasa') ? 'active text-maroon fw-bold' : ''}`}
+              href="#"
+              role="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              Layanan Jasa
+            </a>
+            <ul class="dropdown-menu border-0 shadow-dropdown rounded-3 py-2 mt-2" style="min-width: 250px;">
+              <li><a class="dropdown-item py-2" href="/jasa/digital-marketing"><i class="bi bi-bullseye me-2 text-maroon"></i>Digital Marketing</a></li>
+              <li><a class="dropdown-item py-2" href="/jasa/seo"><i class="bi bi-search me-2 text-maroon"></i>Jasa SEO Website</a></li>
+              <li><a class="dropdown-item py-2" href="/jasa/social-media-marketing"><i class="bi bi-instagram me-2 text-maroon"></i>Social Media Marketing</a></li>
+              <li><a class="dropdown-item py-2" href="/jasa/web-development"><i class="bi bi-browser-chrome me-2 text-maroon"></i>Web Development</a></li>
+              <li><a class="dropdown-item py-2" href="/jasa/graphic-design"><i class="bi bi-vector-pen me-2 text-maroon"></i>Graphic Design</a></li>
+              <li><a class="dropdown-item py-2" href="/jasa/content-creation"><i class="bi bi-camera-reels me-2 text-maroon"></i>Content Creation</a></li>
+              <li><a class="dropdown-item py-2" href="/jasa/branding"><i class="bi bi-stars me-2 text-maroon"></i>Branding Bisnis</a></li>
+              <li><hr class="dropdown-divider my-2"></li>
+              <li><a class="dropdown-item py-2 fw-semibold text-maroon" href="/jasa">Lihat Seluruh Layanan &rarr;</a></li>
+            </ul>
+          </li>
+
+          <li class="nav-item">
+            <a class={`nav-link px-3 ${currentPath.startsWith('/portofolio') ? 'active text-maroon fw-bold' : ''}`} href="/portofolio">
+              Portofolio
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a class={`nav-link px-3 ${currentPath.startsWith('/blog') ? 'active text-maroon fw-bold' : ''}`} href="/blog">
+              Blog
+            </a>
+          </li>
+        </ul>
+
+        <!-- Action CTA -->
+        <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0">
+          <a
+            href="https://wa.me/62895639068080?text=Halo%20Admin%2C%20saya%20ingin%20konsultasi%20program%20magang%20atau%20layanan%20agency"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn btn-outline-maroon d-none d-xl-inline-flex align-items-center gap-1"
+          >
+            <i class="bi bi-whatsapp"></i> Konsultasi
+          </a>
+          <a href="/pendaftaran" class="btn btn-maroon d-inline-flex align-items-center gap-2">
+            <span>Daftar Magang</span>
+            <i class="bi bi-arrow-right-short fs-5"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+

@@ -1,0 +1,370 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { supabaseAdmin } from '../../../lib/supabase/admin';
+
+// Ambil parameter filter dari URL
+const url = new URL(Astro.request.url);
+const search = url.searchParams.get('search') || '';
+const statusFilter = url.searchParams.get('status') || 'all';
+const typeFilter = url.searchParams.get('type') || 'all';
+
+// Bangun query
+let query = supabaseAdmin
+  .from('applications')
+  .select('*, programs(title)')
+  .order('created_at', { ascending: false });
+
+if (statusFilter !== 'all') {
+  query = query.eq('status', statusFilter);
+}
+
+if (typeFilter !== 'all') {
+  query = query.eq('participant_type', typeFilter);
+}
+
+if (search) {
+  query = query.or(`full_name.ilike.%${search}%,application_number.ilike.%${search}%,institution.ilike.%${search}%,email.ilike.%${search}%`);
+}
+
+const { data: applicationsData, error } = await query;
+const applications = applicationsData || [];
+
+// Helper badge
+const getStatusBadge = (status: string) => {
+  switch (status) {
+    case 'pending': return 'badge bg-warning text-dark';
+    case 'reviewing': return 'badge bg-info text-dark';
+    case 'accepted': return 'badge bg-success';
+    case 'rejected': return 'badge bg-danger';
+    case 'withdrawn': return 'badge bg-secondary';
+    default: return 'badge bg-secondary';
+  }
+};
+---
+
+<AdminLayout title="Manajemen Pendaftar Magang" activeMenu="pendaftaran">
+  <!-- FILTER & ACTION TOOLBAR -->
+  <div class="card-elegant p-3 bg-white border-0 shadow-sm mb-4">
+    <form method="GET" class="row g-2 align-items-center">
+      <!-- Search Input -->
+      <div class="col-lg-4 col-md-6">
+        <div class="input-group input-group-sm">
+          <span class="input-group-text bg-white text-muted"><i class="bi bi-search"></i></span>
+          <input
+            type="text"
+            name="search"
+            class="form-control"
+            placeholder="Cari nama, no. reg, kampus..."
+            value={search}
+          />
+        </div>
+      </div>
+
+      <!-- Filter Status -->
+      <div class="col-lg-3 col-md-3 col-6">
+        <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+          <option value="all" selected={statusFilter === 'all'}>-- Semua Status --</option>
+          <option value="pending" selected={statusFilter === 'pending'}>Pending (Menunggu)</option>
+          <option value="reviewing" selected={statusFilter === 'reviewing'}>Reviewing (Diperiksa)</option>
+          <option value="accepted" selected={statusFilter === 'accepted'}>Accepted (Diterima)</option>
+          <option value="rejected" selected={statusFilter === 'rejected'}>Rejected (Ditolak)</option>
+          <option value="withdrawn" selected={statusFilter === 'withdrawn'}>Withdrawn (Batal)</option>
+        </select>
+      </div>
+
+      <!-- Filter Jenjang -->
+      <div class="col-lg-2 col-md-3 col-6">
+        <select name="type" class="form-select form-select-sm" onchange="this.form.submit()">
+          <option value="all" selected={typeFilter === 'all'}>-- Semua Jenjang --</option>
+          <option value="smk" selected={typeFilter === 'smk'}>Siswa SMK</option>
+          <option value="mahasiswa" selected={typeFilter === 'mahasiswa'}>Mahasiswa</option>
+        </select>
+      </div>
+
+      <!-- Filter Button & Export -->
+      <div class="col-lg-3 col-md-12 d-flex justify-content-lg-end gap-2 mt-2 mt-lg-0">
+        <button type="submit" class="btn btn-sm btn-maroon px-3">
+          <i class="bi bi-funnel me-1"></i>Filter
+        </button>
+        {search || statusFilter !== 'all' || typeFilter !== 'all' ? (
+          <a href="/admin/pendaftaran" class="btn btn-sm btn-outline-secondary">Reset</a>
+        ) : null}
+        <a href="/api/admin/applications/export" class="btn btn-sm btn-outline-success ms-auto ms-lg-0">
+          <i class="bi bi-file-earmark-excel me-1"></i>Export CSV
+        </a>
+      </div>
+    </form>
+  </div>
+
+  <!-- APPLICANTS TABLE -->
+  <div class="card-elegant bg-white border-0 shadow-sm">
+    <div class="card-header bg-white py-3 px-4 d-flex justify-content-between align-items-center border-bottom">
+      <span class="small text-muted">Menampilkan <strong>{applications.length}</strong> data pendaftar</span>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light small text-uppercase text-muted">
+          <tr>
+            <th class="ps-4">No. Registrasi</th>
+            <th>Nama Peserta</th>
+            <th>Jenjang & Asal Institusi</th>
+            <th>Program Pilihan</th>
+            <th>Durasi & Mulai</th>
+            <th>Status</th>
+            <th>Tanggal Daftar</th>
+            <th class="text-end pe-4">Aksi</th>
+          </tr>
+        </thead>
+        <tbody class="small">
+          {applications.length === 0 ? (
+            <tr>
+              <td colspan="8" class="text-center py-5 text-muted">
+                <i class="bi bi-inbox fs-2 d-block mb-2 text-muted opacity-50"></i>
+                Tidak ditemukan data pendaftar sesuai filter yang dipilih.
+              </td>
+            </tr>
+          ) : (
+            applications.map(app => (
+              <tr>
+                <td class="ps-4 fw-bold text-maroon font-heading">{app.application_number}</td>
+                <td>
+                  <div class="fw-semibold">{app.full_name}</div>
+                  <div class="text-muted" style="font-size: 0.78rem;">
+                    <i class="bi bi-whatsapp text-success me-1"></i>{app.whatsapp}
+                  </div>
+                </td>
+                <td>
+                  <div class="d-flex align-items-center gap-1">
+                    <span class={`badge ${app.participant_type === 'smk' ? 'bg-maroon' : 'bg-primary'} text-uppercase`} style="font-size: 0.65rem;">
+                      {app.participant_type}
+                    </span>
+                    <span class="fw-medium">{app.institution}</span>
+                  </div>
+                  <small class="text-muted">{app.major} ({app.class_or_semester})</small>
+                </td>
+                <td>
+                  <div class="fw-medium">{app.programs?.title || app.preferred_field}</div>
+                  <small class="text-muted">Bidang: {app.preferred_field}</small>
+                </td>
+                <td>
+                  <div>{app.duration}</div>
+                  <small class="text-muted">Mulai: {app.start_date}</small>
+                </td>
+                <td>
+                  <span class={getStatusBadge(app.status)}>{app.status}</span>
+                </td>
+                <td class="text-muted">
+                  {new Date(app.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                </td>
+                <td class="text-end pe-4">
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-maroon px-2 py-1 btn-detail"
+                    data-app={JSON.stringify(app)}
+                  >
+                    Detail / Ubah
+                  </button>
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- MODAL DETAIL & EDIT STATUS -->
+  <div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header bg-maroon text-white py-3">
+          <h5 class="modal-title font-heading h6 fw-bold" id="detailModalLabel">
+            Detail Calon Peserta Magang
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body p-4">
+          <!-- Identitas Box -->
+          <div class="row g-3 mb-4 pb-3 border-bottom">
+            <div class="col-md-6">
+              <label class="text-muted small d-block">Nomor Registrasi</label>
+              <strong id="modalAppNumber" class="text-maroon fs-5 font-heading">-</strong>
+            </div>
+            <div class="col-md-6 text-md-end">
+              <label class="text-muted small d-block">Status Saat Ini</label>
+              <span id="modalCurrentStatus" class="badge bg-secondary">-</span>
+            </div>
+            <div class="col-md-6">
+              <label class="text-muted small d-block">Nama Lengkap</label>
+              <h6 id="modalFullName" class="fw-bold mb-0">-</h6>
+            </div>
+            <div class="col-md-6">
+              <label class="text-muted small d-block">Email & WhatsApp</label>
+              <div><span id="modalEmail">-</span></div>
+              <a id="modalWhatsAppLink" href="#" target="_blank" class="btn btn-sm btn-success py-0 px-2 mt-1">
+                <i class="bi bi-whatsapp me-1"></i>Chat WhatsApp Peserta
+              </a>
+            </div>
+            <div class="col-md-6">
+              <label class="text-muted small d-block">Asal Sekolah/Kampus & Jurusan</label>
+              <span id="modalInstitution">-</span> (<span id="modalMajor">-</span>, <span id="modalClass">-</span>)
+            </div>
+            <div class="col-md-6">
+              <label class="text-muted small d-block">Program & Bidang Keahlian</label>
+              <span id="modalProgram">-</span> / <span id="modalField">-</span>
+            </div>
+            <div class="col-md-6">
+              <label class="text-muted small d-block">Durasi & Rencana Mulai</label>
+              <span id="modalDuration">-</span> (Mulai: <span id="modalStartDate">-</span>, Mode: <span id="modalMode">-</span>)
+            </div>
+            <div class="col-md-6">
+              <label class="text-muted small d-block">Portofolio / CV Link</label>
+              <div id="modalPortfolioBox">-</div>
+            </div>
+            <div class="col-12">
+              <label class="text-muted small d-block">Catatan dari Peserta</label>
+              <p id="modalNotes" class="small text-muted bg-light p-2 rounded mb-0">-</p>
+            </div>
+          </div>
+
+          <!-- Form Ubah Status -->
+          <form id="updateStatusForm">
+            <input type="hidden" id="modalAppId" name="application_id" />
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label for="new_status" class="form-label fw-bold small text-maroon">Ubah Status Pendaftaran <span class="text-danger">*</span></label>
+                <select class="form-select form-select-sm" id="new_status" name="new_status" required>
+                  <option value="pending">Pending (Menunggu Review)</option>
+                  <option value="reviewing">Reviewing (Sedang Diperiksa)</option>
+                  <option value="accepted">Accepted (Diterima Magang)</option>
+                  <option value="rejected">Rejected (Ditolak)</option>
+                  <option value="withdrawn">Withdrawn (Dibatalkan Peserta)</option>
+                </select>
+              </div>
+
+              <div class="col-12">
+                <label for="admin_notes" class="form-label fw-semibold small">Catatan Admin / Alasan Perubahan Status</label>
+                <textarea class="form-control form-control-sm" id="admin_notes" name="admin_notes" rows="2" placeholder="Tuliskan catatan internal atau alasan penerimaan/penolakan..."></textarea>
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+              <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Tutup</button>
+              <button type="submit" id="btnSaveStatus" class="btn btn-sm btn-maroon px-4 fw-bold">
+                <span id="saveStatusText">Simpan Perubahan</span>
+                <span id="saveStatusSpinner" class="spinner-border spinner-border-sm d-none" role="status"></span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Client-side script handling Modal & Status Update -->
+  <script>
+    import { Modal } from 'bootstrap';
+
+    let currentModal: any = null;
+    const modalEl = document.getElementById('detailModal');
+    if (modalEl) {
+      currentModal = new Modal(modalEl);
+    }
+
+    // Handle Click Detail Button
+    document.querySelectorAll('.btn-detail').forEach(button => {
+      button.addEventListener('click', () => {
+        const appData = JSON.parse(button.getAttribute('data-app') || '{}');
+
+        (document.getElementById('modalAppId') as HTMLInputElement).value = appData.id || '';
+        (document.getElementById('modalAppNumber') as HTMLElement).textContent = appData.application_number || '-';
+        (document.getElementById('modalCurrentStatus') as HTMLElement).textContent = appData.status || '-';
+        (document.getElementById('modalFullName') as HTMLElement).textContent = appData.full_name || '-';
+        (document.getElementById('modalEmail') as HTMLElement).textContent = appData.email || '-';
+        (document.getElementById('modalInstitution') as HTMLElement).textContent = appData.institution || '-';
+        (document.getElementById('modalMajor') as HTMLElement).textContent = appData.major || '-';
+        (document.getElementById('modalClass') as HTMLElement).textContent = appData.class_or_semester || '-';
+        (document.getElementById('modalProgram') as HTMLElement).textContent = appData.programs?.title || '-';
+        (document.getElementById('modalField') as HTMLElement).textContent = appData.preferred_field || '-';
+        (document.getElementById('modalDuration') as HTMLElement).textContent = appData.duration || '-';
+        (document.getElementById('modalStartDate') as HTMLElement).textContent = appData.start_date || '-';
+        (document.getElementById('modalMode') as HTMLElement).textContent = appData.internship_mode || '-';
+        (document.getElementById('modalNotes') as HTMLElement).textContent = appData.notes || 'Tidak ada catatan tambahan.';
+
+        // WA Link
+        const cleanWa = (appData.whatsapp || '').replace(/[^0-9]/g, '');
+        const formattedWa = cleanWa.startsWith('0') ? '62' + cleanWa.slice(1) : cleanWa;
+        const waLink = document.getElementById('modalWhatsAppLink') as HTMLAnchorElement;
+        waLink.href = `https://wa.me/${formattedWa}?text=${encodeURIComponent(`Halo ${appData.full_name}, kami dari tim panitia Program Magang ingin mengonfirmasi pendaftaran Anda (No: ${appData.application_number}).`)}`;
+
+        // Portfolio Box
+        const portBox = document.getElementById('modalPortfolioBox') as HTMLElement;
+        if (appData.portfolio_url) {
+          portBox.innerHTML = `<a href="${appData.portfolio_url}" target="_blank" rel="noopener noreferrer" class="small text-maroon fw-semibold">${appData.portfolio_url} <i class="bi bi-box-arrow-up-right"></i></a>`;
+        } else {
+          portBox.innerHTML = '<span class="text-muted small">Tidak melampirkan portofolio</span>';
+        }
+
+        // Set status in dropdown
+        (document.getElementById('new_status') as HTMLSelectElement).value = appData.status || 'pending';
+        (document.getElementById('admin_notes') as HTMLTextAreaElement).value = appData.admin_notes || '';
+
+        if (currentModal) {
+          currentModal.show();
+        }
+      });
+    });
+
+    // Handle Form Submit Status Update
+    const updateForm = document.getElementById('updateStatusForm') as HTMLFormElement;
+    const btnSaveStatus = document.getElementById('btnSaveStatus') as HTMLButtonElement;
+    const saveStatusText = document.getElementById('saveStatusText') as HTMLElement;
+    const saveStatusSpinner = document.getElementById('saveStatusSpinner') as HTMLElement;
+
+    if (updateForm) {
+      updateForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const applicationId = (document.getElementById('modalAppId') as HTMLInputElement).value;
+        const newStatus = (document.getElementById('new_status') as HTMLSelectElement).value;
+        const adminNotes = (document.getElementById('admin_notes') as HTMLTextAreaElement).value.trim();
+
+        btnSaveStatus.disabled = true;
+        saveStatusText.textContent = 'Menyimpan...';
+        saveStatusSpinner.classList.remove('d-none');
+
+        try {
+          const res = await fetch('/api/admin/applications/status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              application_id: applicationId,
+              new_status: newStatus,
+              admin_notes: adminNotes,
+            }),
+          });
+
+          const data = await res.json();
+          if (data.success) {
+            alert('Status pendaftaran berhasil diperbarui!');
+            window.location.reload();
+          } else {
+            alert(data.message || 'Gagal mengubah status.');
+            btnSaveStatus.disabled = false;
+            saveStatusText.textContent = 'Simpan Perubahan';
+            saveStatusSpinner.classList.add('d-none');
+          }
+        } catch (err) {
+          alert('Terjadi kesalahan koneksi.');
+          btnSaveStatus.disabled = false;
+          saveStatusText.textContent = 'Simpan Perubahan';
+          saveStatusSpinner.classList.add('d-none');
+        }
+      });
+    }
+  </script>
+</AdminLayout>
+

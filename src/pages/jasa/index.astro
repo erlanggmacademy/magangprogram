@@ -1,0 +1,79 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro';
+import { supabase } from '../../lib/supabase/client';
+
+const { data: servicesData } = await supabase
+  .from('services')
+  .select('*')
+  .eq('is_published', true)
+  .order('sort_order', { ascending: true });
+
+const services = servicesData || [];
+---
+
+<MainLayout
+  title="Layanan Digital Agency & Jasa Pemasaran Online"
+  description="Solusi digital agency profesional untuk bisnis, UMKM, dan personal: Pembuatan Website, Jasa SEO, Social Media Marketing, Desain Grafis, dan Branding Bisnis."
+>
+  <div class="py-5 bg-white border-bottom">
+    <div class="container text-center py-3">
+      <span class="badge-maroon px-3 py-1 mb-2 d-inline-block">Layanan Bisnis</span>
+      <h1 class="display-5 fw-bold font-heading text-maroon mb-3">Layanan Digital Agency Profesional</h1>
+      <p class="lead text-muted mx-auto" style="max-width: 700px;">
+        Kami membantu mengakselerasi pertumbuhan bisnis dan brand Anda melalui strategi digital yang terukur, desain visual memikat, dan teknologi mutakhir.
+      </p>
+    </div>
+  </div>
+
+  <section class="section-padding" style="background-color: #F8F6F5;">
+    <div class="container">
+      <div class="row g-4">
+        {services.map(svc => (
+          <div class="col-lg-4 col-md-6">
+            <div class="card-elegant h-100 p-4 d-flex flex-column justify-content-between">
+              <div>
+                <div class="d-inline-flex align-items-center justify-content-center bg-accent-soft text-maroon rounded-3 p-3 mb-3" style="width: 56px; height: 56px;">
+                  <i class={`bi ${svc.icon || 'bi-briefcase'} fs-3`}></i>
+                </div>
+                <h4 class="h5 fw-bold text-maroon mb-2 font-heading">{svc.title}</h4>
+                <p class="text-muted small mb-4">{svc.short_description}</p>
+              </div>
+              <div class="pt-3 border-top d-flex justify-content-between align-items-center">
+                <a href={`/jasa/${svc.slug}`} class="text-maroon fw-semibold small text-decoration-none">
+                  Pelajari Selengkapnya &rarr;
+                </a>
+                <a
+                  href={`https://wa.me/62895639068080?text=Halo%20Admin%2C%20saya%20tertarik%20konsultasi%20layanan%20${encodeURIComponent(svc.title)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="btn btn-sm btn-outline-maroon"
+                >
+                  <i class="bi bi-whatsapp"></i> Chat
+                </a>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA CONSULTATION -->
+  <section class="py-5 bg-maroon text-white text-center">
+    <div class="container">
+      <h3 class="fw-bold mb-3 font-heading text-white">Butuh Solusi Kustom Sesuai Kebutuhan Bisnis Anda?</h3>
+      <p class="lead opacity-90 mx-auto mb-4" style="max-width: 600px;">
+        Diskusikan tantangan digital bisnis Anda bersama tim konsultan kami. Kami siap memberikan rekomendasi strategi yang tepat sasaran.
+      </p>
+      <a
+        href="https://wa.me/62895639068080?text=Halo%2C%20saya%20ingin%20konsultasi%20kebutuhan%20jasa%20digital%20agency"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="btn btn-warning text-dark fw-bold px-4 py-2"
+      >
+        <i class="bi bi-whatsapp"></i> Konsultasi Gratis via WhatsApp
+      </a>
+    </div>
+  </section>
+</MainLayout>
+

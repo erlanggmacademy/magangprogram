@@ -1,0 +1,159 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro';
+import { supabase } from '../../lib/supabase/client';
+
+const { slug } = Astro.params;
+
+const { data: service, error } = await supabase
+  .from('services')
+  .select('*')
+  .eq('slug', slug)
+  .eq('is_published', true)
+  .single();
+
+if (error || !service) {
+  return Astro.redirect('/404');
+}
+
+// Structured Data Schema Service Sesuai PRD Bab 10.5
+const serviceSchema = {
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "@id": `https://programmagang.id/jasa/${service.slug}#service`,
+  "name": service.title,
+  "serviceType": service.title,
+  "description": service.short_description || service.content,
+  "url": `https://programmagang.id/jasa/${service.slug}`,
+  "provider": {
+    "@type": "Organization",
+    "name": "Program Magang & Digital Agency",
+    "url": "https://programmagang.id/"
+  },
+  "areaServed": {
+    "@type": "Country",
+    "name": "Indonesia"
+  }
+};
+
+const pageTitle = service.meta_title || `${service.title} - Layanan Digital Agency`;
+const pageDesc = service.meta_description || service.short_description || `Layanan profesional ${service.title} untuk meningkatkan performa bisnis dan pertumbuhan brand Anda.`;
+---
+
+<MainLayout
+  title={pageTitle}
+  description={pageDesc}
+  schema={serviceSchema}
+>
+  <!-- HEADER -->
+  <section class="py-5 bg-white border-bottom">
+    <div class="container py-2">
+      <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb small">
+          <li class="breadcrumb-item"><a href="/" class="text-maroon text-decoration-none">Beranda</a></li>
+          <li class="breadcrumb-item"><a href="/jasa" class="text-maroon text-decoration-none">Layanan</a></li>
+          <li class="breadcrumb-item active text-muted" aria-current="page">{service.title}</li>
+        </ol>
+      </nav>
+
+      <div class="row align-items-center g-4">
+        <div class="col-lg-8">
+          <div class="d-inline-flex align-items-center gap-2 badge-maroon mb-3 px-3 py-2 small">
+            <i class="bi bi-star-fill text-warning"></i>
+            <span>Layanan Unggulan Digital Agency</span>
+          </div>
+
+          <h1 class="display-6 fw-bold font-heading text-maroon mb-3">{service.title}</h1>
+          <p class="lead text-muted mb-4">{service.short_description}</p>
+
+          <div class="d-flex flex-wrap gap-3">
+            <a
+              href={`https://wa.me/62895639068080?text=Halo%20Admin%2C%20saya%20ingin%20konsultasi%20mengenai%20layanan%20${encodeURIComponent(service.title)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn btn-maroon btn-lg px-4 d-inline-flex align-items-center gap-2 shadow-sm"
+            >
+              <i class="bi bi-whatsapp"></i>
+              <span>Konsultasi Proyek via WhatsApp</span>
+            </a>
+            <a href="/jasa" class="btn btn-outline-maroon btn-lg px-4">
+              Lihat Layanan Lain
+            </a>
+          </div>
+        </div>
+
+        <div class="col-lg-4 text-center">
+          <div class="d-inline-flex align-items-center justify-content-center bg-accent-soft text-maroon rounded-circle p-5 shadow-sm" style="width: 140px; height: 140px;">
+            <i class={`bi ${service.icon || 'bi-briefcase'} display-4`}></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTENT DETAIL -->
+  <section class="section-padding" style="background-color: #F8F6F5;">
+    <div class="container">
+      <div class="row g-5">
+        <div class="col-lg-8">
+          <div class="card-elegant p-4 p-md-5 bg-white mb-4">
+            <h3 class="h4 fw-bold text-maroon mb-3 font-heading">Solusi yang Kami Hadirkan</h3>
+            <p class="text-muted">
+              {service.content || 'Layanan ini dikerjakan oleh tim praktisi yang berpengalaman dengan mengedepankan efisiensi biaya, target konversi yang jelas, dan kualitas teknis berstandar industri. Kami memastikan setiap output yang dihasilkan berdampak nyata bagi pertumbuhan reputasi maupun penjualan bisnis Anda.'}
+            </p>
+
+            <h4 class="h5 fw-bold text-maroon mt-5 mb-3 font-heading">Mengapa Memilih Layanan Ini?</h4>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="p-3 bg-light rounded-3 border">
+                  <div class="fw-bold text-maroon mb-1"><i class="bi bi-graph-up text-maroon me-2"></i>Berorientasi Hasil & ROI</div>
+                  <small class="text-muted">Setiap strategi dan desain dirancang untuk mendukung target pencapaian bisnis Anda.</small>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="p-3 bg-light rounded-3 border">
+                  <div class="fw-bold text-maroon mb-1"><i class="bi bi-lightning-charge text-maroon me-2"></i>Cepat & Tepat Waktu</div>
+                  <small class="text-muted">Timeline pengerjaan yang terstruktur dan komunikasi berkala yang transparan.</small>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="p-3 bg-light rounded-3 border">
+                  <div class="fw-bold text-maroon mb-1"><i class="bi bi-shield-check text-maroon me-2"></i>Dukungan & Garansi</div>
+                  <small class="text-muted">After-service support untuk memastikan kelancaran operasional pasca delivery.</small>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="p-3 bg-light rounded-3 border">
+                  <div class="fw-bold text-maroon mb-1"><i class="bi bi-wallet2 text-maroon me-2"></i>Harga Kompetitif</div>
+                  <small class="text-muted">Skema paket yang terjangkau bagi UMKM, startup, hingga perusahaan berkembang.</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4">
+          <div class="card-elegant p-4 bg-white sticky-top" style="top: 100px;">
+            <h5 class="fw-bold text-maroon mb-2 font-heading">Konsultasi Kebutuhan Anda</h5>
+            <p class="text-muted small mb-4">
+              Dapatkan proposal estimasi biaya dan rencana kerja yang disesuaikan dengan anggaran bisnis Anda.
+            </p>
+
+            <a
+              href={`https://wa.me/62895639068080?text=Halo%20Admin%2C%20saya%20tertarik%20dengan%20layanan%20${encodeURIComponent(service.title)}.%20Bisa%20bantu%20berikan%20penjelasan%20paket%20dan%20biayanya%3F`}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn btn-maroon w-100 py-3 fw-bold mb-3 d-flex align-items-center justify-content-center gap-2 shadow-sm"
+            >
+              <i class="bi bi-whatsapp"></i> Chat WhatsApp
+            </a>
+
+            <div class="small text-muted text-center">
+              Respon cepat: Senin - Sabtu (08:00 - 17:00 WIB)
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</MainLayout>
+

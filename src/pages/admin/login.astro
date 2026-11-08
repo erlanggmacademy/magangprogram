@@ -1,0 +1,140 @@
+---
+import { getAdminSession } from '../../lib/auth';
+import '../../styles/global.css';
+
+// Jika sudah login, redirect langsung ke dashboard
+const adminUser = await getAdminSession(Astro.cookies);
+if (adminUser) {
+  return Astro.redirect('/admin');
+}
+---
+
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login Administrator - Program Magang & Agency</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body class="bg-light d-flex align-items-center justify-content-center min-vh-100 p-3">
+    <div class="card-elegant p-4 p-md-5 bg-white w-100 shadow-lg border" style="max-width: 440px;">
+      
+      <!-- Brand Header -->
+      <div class="text-center mb-4">
+        <span class="d-inline-flex align-items-center justify-content-center bg-maroon text-white rounded-3 p-3 mb-2" style="width: 52px; height: 52px;">
+          <i class="bi bi-shield-lock-fill fs-3"></i>
+        </span>
+        <h2 class="h4 fw-bold text-maroon font-heading mb-1">Portal Administrator</h2>
+        <p class="text-muted small">Program Magang SMK & Mahasiswa</p>
+      </div>
+
+      <!-- Alert Error -->
+      <div id="loginAlert" class="alert alert-danger d-none py-2 small" role="alert">
+        <i class="bi bi-exclamation-circle-fill me-1"></i>
+        <span id="loginErrorMsg">Email atau password salah.</span>
+      </div>
+
+      <!-- Form Login -->
+      <form id="adminLoginForm">
+        <div class="mb-3">
+          <label for="email" class="form-label fw-semibold small">Alamat Email Admin</label>
+          <div class="input-group">
+            <span class="input-group-text bg-white text-muted border-end-0"><i class="bi bi-envelope"></i></span>
+            <input
+              type="email"
+              class="form-control border-start-0 ps-0"
+              id="email"
+              name="email"
+              placeholder="admin@programmagang.id"
+              required
+              autocomplete="email"
+            />
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label for="password" class="form-label fw-semibold small">Password</label>
+          <div class="input-group">
+            <span class="input-group-text bg-white text-muted border-end-0"><i class="bi bi-key"></i></span>
+            <input
+              type="password"
+              class="form-control border-start-0 ps-0"
+              id="password"
+              name="password"
+              placeholder="••••••••••••"
+              required
+              autocomplete="current-password"
+            />
+          </div>
+        </div>
+
+        <div class="d-grid mb-3">
+          <button type="submit" id="btnLogin" class="btn btn-maroon py-2 fw-semibold d-flex align-items-center justify-content-center gap-2">
+            <span id="btnText">Masuk ke Dashboard</span>
+            <span id="btnSpinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+          </button>
+        </div>
+
+        <div class="text-center pt-2 border-top">
+          <a href="/" class="small text-muted text-decoration-none">
+            &larr; Kembali ke Website Publik
+          </a>
+        </div>
+      </form>
+    </div>
+
+    <script>
+      const form = document.getElementById('adminLoginForm') as HTMLFormElement;
+      const btn = document.getElementById('btnLogin') as HTMLButtonElement;
+      const btnText = document.getElementById('btnText') as HTMLElement;
+      const btnSpinner = document.getElementById('btnSpinner') as HTMLElement;
+      const alertBox = document.getElementById('loginAlert') as HTMLElement;
+      const errorMsg = document.getElementById('loginErrorMsg') as HTMLElement;
+
+      if (form) {
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          alertBox.classList.add('d-none');
+
+          const email = (document.getElementById('email') as HTMLInputElement).value.trim();
+          const password = (document.getElementById('password') as HTMLInputElement).value;
+
+          btn.disabled = true;
+          btnText.textContent = 'Memverifikasi...';
+          btnSpinner.classList.remove('d-none');
+
+          try {
+            const res = await fetch('/api/auth/login', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email, password }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok || !data.success) {
+              errorMsg.textContent = data.message || 'Login gagal. Periksa email dan password.';
+              alertBox.classList.remove('d-none');
+              btn.disabled = false;
+              btnText.textContent = 'Masuk ke Dashboard';
+              btnSpinner.classList.add('d-none');
+              return;
+            }
+
+            // Redirect on success
+            window.location.href = data.redirect || '/admin';
+          } catch (err) {
+            errorMsg.textContent = 'Terjadi kesalahan koneksi internet.';
+            alertBox.classList.remove('d-none');
+            btn.disabled = false;
+            btnText.textContent = 'Masuk ke Dashboard';
+            btnSpinner.classList.add('d-none');
+          }
+        });
+      }
+    </script>
+  </body>
+</html>
+

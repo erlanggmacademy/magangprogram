@@ -1,0 +1,120 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro';
+import { supabase } from '../../lib/supabase/client';
+
+const { data: programsData } = await supabase
+  .from('programs')
+  .select('*')
+  .eq('is_published', true)
+  .order('sort_order', { ascending: true });
+
+const programs = programsData || [];
+const smkPrograms = programs.filter(p => p.category === 'smk');
+const collegePrograms = programs.filter(p => p.category === 'mahasiswa');
+---
+
+<MainLayout
+  title="Daftar Program Magang SMK & Mahasiswa"
+  description="Pilihan lengkap program magang dan PKL untuk siswa SMK RPL, TKJ, Multimedia, DKV serta mahasiswa Informatika, Digital Marketing, dan Bisnis Digital."
+>
+  <div class="py-5 bg-white border-bottom">
+    <div class="container text-center py-3">
+      <span class="badge-maroon px-3 py-1 mb-2 d-inline-block">Katalog Program</span>
+      <h1 class="display-5 fw-bold font-heading text-maroon mb-3">Program Magang & PKL Industri</h1>
+      <p class="lead text-muted mx-auto" style="max-width: 700px;">
+        Pilih program yang selaras dengan kurikulum sekolah atau perkuliahan Anda. Dapatkan pengalaman praktik proyek digital riil bersama mentor berpengalaman.
+      </p>
+    </div>
+  </div>
+
+  <!-- SECTION SMK -->
+  <section class="section-padding" style="background-color: #F8F6F5;">
+    <div class="container">
+      <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+          <span class="badge bg-maroon text-white px-2 py-1 small">Tingkat Sekolah Menengah Kejuruan</span>
+          <h2 class="h3 fw-bold text-maroon mt-2 font-heading">Program Magang SMK / PKL</h2>
+        </div>
+        <a href="/pendaftaran" class="btn btn-outline-maroon btn-sm d-none d-md-inline-block">Daftar Sekarang &rarr;</a>
+      </div>
+
+      <div class="row g-4">
+        {smkPrograms.map(p => (
+          <div class="col-lg-3 col-md-6">
+            <div class="card-elegant h-100 p-4 d-flex flex-column justify-content-between">
+              <div>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <span class="badge bg-maroon text-white">{p.target_major}</span>
+                  <small class="text-muted"><i class="bi bi-clock me-1"></i>{p.duration}</small>
+                </div>
+                <h5 class="fw-bold text-maroon mb-2 font-heading fs-6">{p.title}</h5>
+                <p class="text-muted small mb-3">{p.short_description}</p>
+              </div>
+              <div class="pt-3 border-top d-flex justify-content-between align-items-center">
+                <span class="badge badge-outline text-capitalize">{p.mode}</span>
+                <a href={`/program/${p.slug}`} class="text-maroon fw-semibold small text-decoration-none">
+                  Lihat Detail &rarr;
+                </a>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION MAHASISWA -->
+  <section class="section-padding bg-white">
+    <div class="container">
+      <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+          <span class="badge bg-secondary text-white px-2 py-1 small">Tingkat Perguruan Tinggi / Kuliah</span>
+          <h2 class="h3 fw-bold text-maroon mt-2 font-heading">Program Magang Mahasiswa</h2>
+        </div>
+        <a href="/pendaftaran" class="btn btn-outline-maroon btn-sm d-none d-md-inline-block">Daftar Sekarang &rarr;</a>
+      </div>
+
+      <div class="row g-4">
+        {collegePrograms.map(p => (
+          <div class="col-lg-3 col-md-6">
+            <div class="card-elegant h-100 p-4 d-flex flex-column justify-content-between">
+              <div>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <span class="badge bg-secondary text-white">{p.target_major}</span>
+                  <small class="text-muted"><i class="bi bi-clock me-1"></i>{p.duration}</small>
+                </div>
+                <h5 class="fw-bold text-maroon mb-2 font-heading fs-6">{p.title}</h5>
+                <p class="text-muted small mb-3">{p.short_description}</p>
+              </div>
+              <div class="pt-3 border-top d-flex justify-content-between align-items-center">
+                <span class="badge badge-outline text-capitalize">{p.mode}</span>
+                <a href={`/program/${p.slug}`} class="text-maroon fw-semibold small text-decoration-none">
+                  Lihat Detail &rarr;
+                </a>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA STRIP -->
+  <section class="py-5 bg-maroon text-white text-center">
+    <div class="container">
+      <h3 class="fw-bold mb-3 font-heading text-white">Tidak Menemukan Jurusan yang Anda Cari?</h3>
+      <p class="lead opacity-90 mx-auto mb-4" style="max-width: 600px;">
+        Konsultasikan langsung dengan tim admin kami untuk kemungkinan penyesuaian bidang kerja magang.
+      </p>
+      <a
+        href="https://wa.me/62895639068080?text=Halo%20Admin%2C%20saya%20ingin%20konsultasi%20mengenai%20kesesuaian%20jurusan%20magang"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="btn btn-warning text-dark fw-bold px-4 py-2"
+      >
+        <i class="bi bi-whatsapp"></i> Chat WhatsApp Admin
+      </a>
+    </div>
+  </section>
+</MainLayout>
+

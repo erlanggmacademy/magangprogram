@@ -1,0 +1,56 @@
+---
+import '../styles/global.css';
+import Meta from '../components/SEO/Meta.astro';
+import JsonLd from '../components/SEO/JsonLd.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+import WhatsAppButton from '../components/WhatsAppButton.astro';
+
+interface Props {
+  title?: string;
+  description?: string;
+  canonicalUrl?: string;
+  ogImage?: string;
+  schema?: Record<string, any>;
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description,
+  canonicalUrl,
+  ogImage,
+  schema,
+  noindex,
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="id">
+  <head>
+    <Meta
+      title={title}
+      description={description}
+      canonicalUrl={canonicalUrl}
+      ogImage={ogImage}
+      noindex={noindex}
+    />
+    {schema && <JsonLd data={schema} />}
+  </head>
+  <body class="d-flex flex-column min-vh-100">
+    <Navbar />
+
+    <main class="flex-grow-1">
+      <slot />
+    </main>
+
+    <WhatsAppButton />
+    <Footer />
+
+    <!-- Bootstrap Bundle JS -->
+    <script>
+      import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+    </script>
+  </body>
+</html>
+

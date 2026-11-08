@@ -1,0 +1,152 @@
+/* =====================================================================
+   DESIGN SYSTEM - ELEGANT MAROON & WHITE
+   Sesuai PRD Bab 12
+===================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
+
+:root {
+  /* Brand Color Palette */
+  --color-primary: #651D32;
+  --color-primary-hover: #501627;
+  --color-secondary: #8A3049;
+  --color-accent: #C17B8C;
+  --color-accent-light: #F7EDF0;
+  --color-bg: #F8F6F5;
+  --color-surface: #FFFFFF;
+  --color-text: #292529;
+  --color-muted: #777078;
+  --color-border: #EAE5E5;
+
+  /* Typography */
+  --font-heading: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+
+  /* Shadows */
+  --shadow-subtle: 0 2px 8px rgba(101, 29, 50, 0.04);
+  --shadow-card: 0 4px 20px rgba(101, 29, 50, 0.06);
+  --shadow-card-hover: 0 12px 32px rgba(101, 29, 50, 0.12);
+  --shadow-dropdown: 0 10px 30px rgba(0, 0, 0, 0.08);
+
+  /* Border Radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6, .font-heading {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  color: var(--color-primary);
+  letter-spacing: -0.02em;
+}
+
+/* Custom Buttons */
+.btn-maroon {
+  background-color: var(--color-primary);
+  color: #FFFFFF;
+  border: 1px solid var(--color-primary);
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  padding: 0.625rem 1.35rem;
+  transition: all 0.25s ease;
+}
+
+.btn-maroon:hover, .btn-maroon:focus {
+  background-color: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
+  color: #FFFFFF;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(101, 29, 50, 0.25);
+}
+
+.btn-outline-maroon {
+  background-color: transparent;
+  color: var(--color-primary);
+  border: 1.5px solid var(--color-primary);
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  padding: 0.625rem 1.35rem;
+  transition: all 0.25s ease;
+}
+
+.btn-outline-maroon:hover, .btn-outline-maroon:focus {
+  background-color: var(--color-primary);
+  color: #FFFFFF;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(101, 29, 50, 0.18);
+}
+
+.btn-accent {
+  background-color: var(--color-accent-light);
+  color: var(--color-primary);
+  border: 1px solid rgba(193, 123, 140, 0.3);
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  transition: all 0.2s ease;
+}
+
+.btn-accent:hover {
+  background-color: var(--color-accent);
+  color: #FFFFFF;
+}
+
+/* Cards */
+.card-elegant {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+  overflow: hidden;
+}
+
+.card-elegant:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-card-hover);
+  border-color: rgba(193, 123, 140, 0.5);
+}
+
+/* Badges */
+.badge-maroon {
+  background-color: var(--color-accent-light);
+  color: var(--color-primary);
+  font-weight: 600;
+  padding: 0.35em 0.85em;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(193, 123, 140, 0.3);
+}
+
+.badge-outline {
+  border: 1px solid var(--color-border);
+  color: var(--color-muted);
+  font-weight: 500;
+  padding: 0.35em 0.75em;
+  border-radius: var(--radius-full);
+}
+
+/* Sections */
+.section-alt {
+  background-color: var(--color-surface);
+}
+
+.section-padding {
+  padding-top: 5rem;
+  padding-bottom: 5rem;
+}
+
+/* Focus States for Accessibility */
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
